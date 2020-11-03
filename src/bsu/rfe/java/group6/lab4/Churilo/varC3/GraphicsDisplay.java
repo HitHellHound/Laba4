@@ -9,10 +9,12 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
 public class GraphicsDisplay extends JPanel {
-    private Double[][] graphics1Data;
+    private Double[][] graphics1Data = null;
+    private Double[][] graphics2Data = null;
 
     private boolean showAxis = true;
     private boolean showMarkers = true;
+    private boolean isTurned = false;
 
     private double minX;
     private double maxX;
@@ -21,7 +23,8 @@ public class GraphicsDisplay extends JPanel {
 
     private double scale;
 
-    private BasicStroke graphicsStroke;
+    private BasicStroke graphics1Stroke;
+    private BasicStroke graphics2Stroke;
     private BasicStroke axisStroke;
     private BasicStroke markerStroke;
 
@@ -30,7 +33,8 @@ public class GraphicsDisplay extends JPanel {
     public GraphicsDisplay() {
         setBackground(Color.WHITE);
 
-        graphicsStroke = new BasicStroke(2.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND, 10.0f, new float[] {8, 2, 8, 2, 8, 2, 2, 2, 2, 2, 2, 2}, 0.0f);
+        graphics1Stroke = new BasicStroke(2.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND, 10.0f, new float[] {8, 2, 8, 2, 8, 2, 2, 2, 2, 2, 2, 2}, 0.0f);
+        graphics2Stroke = new BasicStroke(2.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND, 10.0f, new float[] {8, 4}, 0.0f);
         axisStroke = new BasicStroke(2.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, null, 0.0f);
         markerStroke = new BasicStroke(1.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, null, 0.0f);
 
@@ -38,7 +42,14 @@ public class GraphicsDisplay extends JPanel {
     }
 
     public void showGraphics(Double[][] graphicsData){
-        this.graphics1Data = graphicsData;
+        if (this.graphics1Data == null)
+            this.graphics1Data = graphicsData;
+        else if (this.graphics2Data == null)
+            this.graphics2Data = graphicsData;
+        else {
+            this.graphics1Data = this.graphics2Data;
+            this.graphics2Data = graphicsData;
+        }
         repaint();
     }
 
@@ -49,6 +60,16 @@ public class GraphicsDisplay extends JPanel {
 
     public void setShowMarkers(boolean showMarkers){
         this.showMarkers = showMarkers;
+        repaint();
+    }
+
+    public void setIsTurned(boolean isTurned){
+        this.isTurned = isTurned;
+        /*if (isTurned){
+            if (graphics1Data != null && graphics1Data.length > 0){
+                for (int )
+            }
+        }*/
         repaint();
     }
 
@@ -70,6 +91,19 @@ public class GraphicsDisplay extends JPanel {
                 minY = graphics1Data[i][1];
             if (graphics1Data[i][1] > maxY)
                 maxY = graphics1Data[i][1];
+        }
+
+        if (graphics2Data != null && graphics2Data.length != 0){
+            for (int i = 0; i < graphics2Data.length; i++){
+                if (graphics2Data[i][0] < minX)
+                    minX = graphics2Data[i][0];
+                if (graphics2Data[i][0] > maxX)
+                    maxX = graphics2Data[i][0];
+                if (graphics2Data[i][1] < minY)
+                    minY = graphics2Data[i][1];
+                if (graphics2Data[i][1] > maxY)
+                    maxY = graphics2Data[i][1];
+            }
         }
 
         double scaleX = getSize().getWidth() / (maxX - minX);
@@ -104,19 +138,35 @@ public class GraphicsDisplay extends JPanel {
     }
 
     private void paintGraphics(Graphics2D canvas){
-        canvas.setStroke(graphicsStroke);
+        canvas.setStroke(graphics1Stroke);
         canvas.setColor(Color.RED);
 
-        GeneralPath graphics = new GeneralPath();
+        GeneralPath graphics1 = new GeneralPath();
         for (int i = 0; i < graphics1Data.length; i++){
             Point2D.Double point = xyToPoint(graphics1Data[i][0], graphics1Data[i][1]);
             if (i > 0)
-                graphics.lineTo(point.getX(), point.getY());
+                graphics1.lineTo(point.getX(), point.getY());
             else
-                graphics.moveTo(point.getX(),point.getY());
+                graphics1.moveTo(point.getX(),point.getY());
         }
 
-        canvas.draw(graphics);
+        canvas.draw(graphics1);
+
+        if (graphics2Data != null && graphics2Data.length != 0){
+            canvas.setStroke(graphics2Stroke);
+            canvas.setColor(Color.BLUE);
+
+            GeneralPath graphics2 = new GeneralPath();
+            for (int i = 0; i < graphics2Data.length; i++){
+                Point2D.Double point = xyToPoint(graphics2Data[i][0], graphics2Data[i][1]);
+                if (i > 0)
+                    graphics2.lineTo(point.getX(), point.getY());
+                else
+                    graphics2.moveTo(point.getX(),point.getY());
+            }
+
+            canvas.draw(graphics2);
+        }
     }
 
     private void paintMarkers(Graphics2D canvas){
@@ -157,6 +207,43 @@ public class GraphicsDisplay extends JPanel {
             marker.lineTo(center.getX() - 5, center.getY() - 5);
 
             canvas.draw(marker);
+        }
+
+        if (graphics2Data != null && graphics2Data.length != 0){
+            for (Double[] point: graphics2Data){
+                GeneralPath marker = new GeneralPath();
+                Point2D.Double center = xyToPoint(point[0], point[1]);
+
+                String f = point[1].toString();
+                int i = 0;
+                int sum = 0;
+                while (f.charAt(i) != '.' && f.charAt(i) != ','){
+                    sum += f.charAt(i) - '0';
+                    i++;
+                }
+                if (sum < 10)
+                    canvas.setColor(Color.BLACK);
+                else
+                    canvas.setColor(Color.BLUE);
+
+                marker.moveTo(center.getX(), center.getY());
+                marker.lineTo(center.getX(), center.getY() - 5);
+                marker.lineTo(center.getX() + 5, center.getY() - 5);
+
+                marker.moveTo(center.getX(), center.getY());
+                marker.lineTo(center.getX() + 5, center.getY());
+                marker.lineTo(center.getX() + 5, center.getY() + 5);
+
+                marker.moveTo(center.getX(), center.getY());
+                marker.lineTo(center.getX(), center.getY() + 5);
+                marker.lineTo(center.getX() - 5, center.getY() + 5);
+
+                marker.moveTo(center.getX(), center.getY());
+                marker.lineTo(center.getX() - 5, center.getY());
+                marker.lineTo(center.getX() - 5, center.getY() - 5);
+
+                canvas.draw(marker);
+            }
         }
     }
 

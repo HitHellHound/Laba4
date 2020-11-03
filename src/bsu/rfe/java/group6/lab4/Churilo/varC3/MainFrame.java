@@ -104,11 +104,21 @@ public class MainFrame extends JFrame{
 
     public static void main(String[] args){
         try {
-            DataOutputStream out = new DataOutputStream(new FileOutputStream("Data.bin"));
+            DataOutputStream out = new DataOutputStream(new FileOutputStream("Data1.bin"));
 
-            for (double x = -10.0; x < 10.01; x += 0.4){
+            for (double x = -10.0; x < 10.01; x += 0.5){
                 out.writeDouble(x);
                 double y = x * x;
+                out.writeDouble(y);
+            }
+
+            out.close();
+
+            out = new DataOutputStream(new FileOutputStream("Data2.bin"));
+
+            for (double x = -10.0; x < 10.01; x += 0.5){
+                out.writeDouble(x);
+                double y = -1 * x * x + 40;
                 out.writeDouble(y);
             }
 
