@@ -30,7 +30,7 @@ public class GraphicsDisplay extends JPanel {
     public GraphicsDisplay() {
         setBackground(Color.WHITE);
 
-        graphicsStroke = new BasicStroke(2.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND, 10.0f, null, 0.0f);
+        graphicsStroke = new BasicStroke(2.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND, 10.0f, new float[] {8, 2, 8, 2, 8, 2, 2, 2, 2, 2, 2, 2}, 0.0f);
         axisStroke = new BasicStroke(2.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, null, 0.0f);
         markerStroke = new BasicStroke(1.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, null, 0.0f);
 
@@ -67,9 +67,9 @@ public class GraphicsDisplay extends JPanel {
             if (graphics1Data[i][0] > maxX)
                 maxX = graphics1Data[i][0];
             if (graphics1Data[i][1] < minY)
-                minY = graphics1Data[i][0];
+                minY = graphics1Data[i][1];
             if (graphics1Data[i][1] > maxY)
-                maxY = graphics1Data[i][0];
+                maxY = graphics1Data[i][1];
         }
 
         double scaleX = getSize().getWidth() / (maxX - minX);
@@ -121,12 +121,24 @@ public class GraphicsDisplay extends JPanel {
 
     private void paintMarkers(Graphics2D canvas){
         canvas.setStroke(markerStroke);
-        canvas.setColor(Color.GREEN);
-        canvas.setPaint(Color.GREEN);
+        boolean isBlack;
+        canvas.setPaint(Color.BLACK);
 
         for (Double[] point: graphics1Data){
             GeneralPath marker = new GeneralPath();
             Point2D.Double center = xyToPoint(point[0], point[1]);
+
+            String f = point[1].toString();
+            int i = 0;
+            int sum = 0;
+            while (f.charAt(i) != '.' && f.charAt(i) != ','){
+                sum += f.charAt(i) - '0';
+                i++;
+            }
+            if (sum < 10)
+                canvas.setColor(Color.BLACK);
+            else
+                canvas.setColor(Color.RED);
 
             marker.moveTo(center.getX(), center.getY());
             marker.lineTo(center.getX(), center.getY() - 5);
@@ -171,7 +183,7 @@ public class GraphicsDisplay extends JPanel {
 
             Rectangle2D bounds = axisFont.getStringBounds("y", context);
             Point2D.Double labelPos = xyToPoint(0, maxY);
-            canvas.drawString("y", (float)labelPos.getX() - 10, (float)(labelPos.getY() + bounds.getY()));
+            canvas.drawString("y", (float)(labelPos.getX() - bounds.getWidth() - 10), (float)(labelPos.getY() - bounds.getY()));
         }
 
         //Ox
@@ -190,7 +202,7 @@ public class GraphicsDisplay extends JPanel {
 
             Rectangle2D bounds = axisFont.getStringBounds("x", context);
             Point2D.Double labelPos = xyToPoint(maxX, 0);
-            canvas.drawString("x", (float)(labelPos.getX() - bounds.getWidth() - 10), (float)(labelPos.getY() + bounds.getY()));
+            canvas.drawString("x", (float)(labelPos.getX() - bounds.getWidth() - 10), (float)(labelPos.getY() - bounds.getY()));
         }
     }
 
