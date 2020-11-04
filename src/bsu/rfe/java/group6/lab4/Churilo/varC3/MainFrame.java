@@ -15,6 +15,7 @@ public class MainFrame extends JFrame{
 
     private JCheckBoxMenuItem showAxisMenuItem;
     private JCheckBoxMenuItem showMarkersMenuItem;
+    private JCheckBoxMenuItem turnGraphicsMenuItem;
 
     private GraphicsDisplay display = new GraphicsDisplay();
 
@@ -66,6 +67,15 @@ public class MainFrame extends JFrame{
         showMarkersMenuItem = new JCheckBoxMenuItem(showMarkersAction);
         graphicsMenu.add(showMarkersMenuItem);
         showMarkersMenuItem.setSelected(true);
+
+        Action turnGraphicsAction = new AbstractAction("Повернуть график на 90° влево") {
+            public void actionPerformed(ActionEvent e) {
+                display.setIsTurned(turnGraphicsMenuItem.isSelected());
+            }
+        };
+        turnGraphicsMenuItem = new JCheckBoxMenuItem(turnGraphicsAction);
+        graphicsMenu.add(turnGraphicsMenuItem);
+        turnGraphicsMenuItem.setSelected(false);
 
         graphicsMenu.addMenuListener(new GraphicsMenuListener());
 
@@ -133,6 +143,7 @@ public class MainFrame extends JFrame{
         public void menuSelected(MenuEvent e) {
             showAxisMenuItem.setEnabled(fileLoaded);
             showMarkersMenuItem.setEnabled(fileLoaded);
+            turnGraphicsMenuItem.setEnabled(fileLoaded);
         }
 
         public void menuDeselected(MenuEvent e){
