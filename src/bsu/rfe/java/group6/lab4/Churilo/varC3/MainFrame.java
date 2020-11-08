@@ -133,6 +133,49 @@ public class MainFrame extends JFrame{
             }
 
             out.close();
+
+            out = new DataOutputStream(new FileOutputStream("Data3.bin"));
+
+            out.writeDouble(0.0);
+            out.writeDouble(4.0);
+
+            out.writeDouble(-2.0);
+            out.writeDouble(2.0);
+
+            out.writeDouble(0.0);
+            out.writeDouble(0.0);
+
+            out.writeDouble(2.0);
+            out.writeDouble(2.0);
+
+            out.writeDouble(4.0);
+            out.writeDouble(0.0);
+
+            out.writeDouble(2.0);
+            out.writeDouble(2.0);
+
+            out.writeDouble(0.0);
+            out.writeDouble(0.0);
+
+            out.writeDouble(2.0);
+            out.writeDouble(-2.0);
+
+            out.writeDouble(0.0);
+            out.writeDouble(-4.0);
+
+            out.writeDouble(2.0);
+            out.writeDouble(-2.0);
+
+            out.writeDouble(0.0);
+            out.writeDouble(0.0);
+
+            out.writeDouble(-2.0);
+            out.writeDouble(-2.0);
+
+            out.writeDouble(-4.0);
+            out.writeDouble(0.0);
+
+            out.close();
         } catch (Exception ex){ }
         MainFrame frame = new MainFrame();
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
