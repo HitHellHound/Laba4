@@ -66,7 +66,7 @@ public class MainFrame extends JFrame{
 
         fileMenu.addMenuListener(new GraphicsMenuListener());
 
-        JMenu graphicsMenu = new JMenu("График");
+        JMenu graphicsMenu = new JMenu("Графикккк");
         menuBar.add(graphicsMenu);
 
         Action resetGraphicsAction = new AbstractAction("Отменить все именения") {
