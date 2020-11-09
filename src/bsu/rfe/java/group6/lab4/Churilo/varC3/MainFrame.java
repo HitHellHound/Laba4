@@ -13,6 +13,8 @@ public class MainFrame extends JFrame{
 
     private JFileChooser fileChooser = null;
 
+    private JMenuItem saveGraphicsMenuItem;
+    private JMenuItem resetGraphicsMenuItem;
     private JCheckBoxMenuItem showAxisMenuItem;
     private JCheckBoxMenuItem showMarkersMenuItem;
     private JCheckBoxMenuItem turnGraphicsMenuItem;
@@ -47,8 +49,32 @@ public class MainFrame extends JFrame{
         };
         fileMenu.add(openGraphicsAction);
 
+        Action saveGraphicsAction = new AbstractAction("Сохранить значения графиков") {
+            public void actionPerformed(ActionEvent e) {
+                if (fileChooser == null){
+                    fileChooser = new JFileChooser();
+                    fileChooser.setCurrentDirectory(new File("."));
+                }
+
+                if (display.isGraphic1() && fileChooser.showSaveDialog(MainFrame.this) == JFileChooser.APPROVE_OPTION)
+                    saveGraphic(fileChooser.getSelectedFile(), display.getGraphic1());
+                if (display.isGraphic2() && fileChooser.showSaveDialog(MainFrame.this) == JFileChooser.APPROVE_OPTION)
+                    saveGraphic(fileChooser.getSelectedFile(), display.getGraphic2());
+            }
+        };
+        saveGraphicsMenuItem = fileMenu.add(saveGraphicsAction);
+
+        fileMenu.addMenuListener(new GraphicsMenuListener());
+
         JMenu graphicsMenu = new JMenu("График");
         menuBar.add(graphicsMenu);
+
+        Action resetGraphicsAction = new AbstractAction("Отменить все именения") {
+            public void actionPerformed(ActionEvent e) {
+                display.reset();
+            }
+        };
+        resetGraphicsMenuItem = graphicsMenu.add(resetGraphicsAction);
 
         Action showAxisAction = new AbstractAction("Показать оси координат") {
             public void actionPerformed(ActionEvent e) {
@@ -110,6 +136,17 @@ public class MainFrame extends JFrame{
             JOptionPane.showMessageDialog(MainFrame.this, "Ошибка чтения координат точек из файла", "Ошибка загрузки данных", JOptionPane.WARNING_MESSAGE);
             return;
         }
+    }
+
+    protected void saveGraphic(File selectedFile, Double[][] graphic){
+        try{
+            DataOutputStream out = new DataOutputStream(new FileOutputStream(selectedFile));
+            for (int i = 0; i < graphic.length; i++){
+                out.writeDouble(graphic[i][0]);
+                out.writeDouble(graphic[i][1]);
+            }
+            out.close();
+        } catch (Exception  e){}
     }
 
     public static void main(String[] args){
@@ -184,6 +221,8 @@ public class MainFrame extends JFrame{
 
     private class GraphicsMenuListener implements MenuListener{
         public void menuSelected(MenuEvent e) {
+            saveGraphicsMenuItem.setEnabled(fileLoaded);
+            resetGraphicsMenuItem.setEnabled(fileLoaded);
             showAxisMenuItem.setEnabled(fileLoaded);
             showMarkersMenuItem.setEnabled(fileLoaded);
             turnGraphicsMenuItem.setEnabled(fileLoaded);
