@@ -41,7 +41,7 @@ public class GraphicsDisplay extends JPanel {
 
     private Double[] originalPoint = new Double[2];
 
-    private double scale;
+    //private double scale;
     private double scaleX;
     private double scaleY;
 
